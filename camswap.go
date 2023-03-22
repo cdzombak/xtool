@@ -1,0 +1,153 @@
+package main
+
+import (
+	"context"
+	"flag"
+	"fmt"
+	"os"
+	"strings"
+
+	"github.com/fatih/color"
+	"github.com/google/subcommands"
+)
+
+type camswapCmd struct {
+	restore     bool
+	separate    bool
+	verbose     bool
+	verbose2    bool
+	newCamModel string
+	appConfig   AppConfig
+}
+
+func (*camswapCmd) Name() string     { return "camswap" }
+func (*camswapCmd) Synopsis() string { return "Swap in a different camera name." }
+
+func (*camswapCmd) Usage() string {
+	return `camswap [-c CAM_MODEL|-c CAM_ALIAS] [-r] [-s] [-v|-vv] file1.jpg [file2.nef ...]:
+  Swaps a different camera model into the given photos' EXIF data.
+  Persists the original name in an XMP attribute for restoration with the -r flag.
+  Exactly one of (-c, -r) is required.
+`
+}
+
+func (p *camswapCmd) SetFlags(f *flag.FlagSet) {
+	f.BoolVar(&p.restore, "r", false, "Restore the original camera name from xtool's XMP attribute.")
+	f.BoolVar(&p.separate, "s", false, "Write modified images to new files with a suffix, rather than to the originals.")
+	f.StringVar(&p.newCamModel, "c", "", "Camera model to swap in (or alias defined in camswap_aliases).")
+	f.BoolVar(&p.verbose, "v", false, "Print full exiftool output for each image.")
+	f.BoolVar(&p.verbose2, "vv", false, "Print exiftool commands and full exiftool output.")
+}
+
+func (p *camswapCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) subcommands.ExitStatus {
+	if p.verbose2 {
+		p.verbose = true
+	}
+
+	if len(f.Args()) == 0 || (!p.restore && p.newCamModel == "") || (p.restore && p.newCamModel != "") {
+		f.Usage()
+		return subcommands.ExitFailure
+	}
+
+	p.appConfig = GetAppConfig()
+
+	exiftoolConfigFilename := getExiftoolConfigFileName()
+	//goland:noinspection GoUnhandledErrorResult
+	defer os.Remove(exiftoolConfigFilename)
+
+	var exiftoolArgs []string
+	if p.restore {
+		exiftoolArgs = []string{
+			"-config", exiftoolConfigFilename,
+			"-Model<XtoolOriginalCameraModel",
+			"-XtoolOriginalCameraModel=",
+			"-if", "$XtoolOriginalCameraModel",
+		}
+
+		if p.separate {
+			exiftoolArgs = append(exiftoolArgs, "-o", "%d%f_restored.%e")
+		}
+	} else {
+		newModel := p.newCamModel
+		if p.appConfig.CamswapAliases[p.newCamModel] != "" {
+			newModel = p.appConfig.CamswapAliases[p.newCamModel]
+		}
+
+		exiftoolArgs = []string{
+			"-config", exiftoolConfigFilename,
+			"-XtoolOriginalCameraModel<Model",
+			fmt.Sprintf("-Model=%s", newModel),
+			"-if", "not $XtoolOriginalCameraModel",
+		}
+
+		if p.separate {
+			exiftoolArgs = append(
+				exiftoolArgs,
+				"-o",
+				fmt.Sprintf(
+					"%%d%%f_%s.%%e",
+					strings.Replace(p.newCamModel, " ", "-", -1),
+				),
+			)
+		}
+	}
+
+	successes, failures := ExiftoolProcess(
+		exiftoolArgs,
+		f.Args(),
+		p.appConfig,
+		p.verbose,
+		p.verbose2,
+	)
+
+	boldWhitePrintf := color.New(color.Bold, color.FgWhite).PrintfFunc()
+	boldRedPrintf := color.New(color.Bold, color.FgRed).PrintfFunc()
+
+	boldWhitePrintf("\ncamswap: successfully processed %d images.\n", len(successes))
+
+	if len(failures) != 0 {
+		boldRedPrintf("Errors:\n")
+		for filename, err := range failures {
+			errString := err.Error()
+			if strings.Contains(err.Error(), "failed condition") {
+				if p.restore {
+					errString = "no camera swap metadata attached"
+				} else {
+					errString = "has already been camswapped"
+				}
+			}
+			fmt.Printf("- %s %s\n", color.MagentaString("%s:", filename), errString)
+		}
+		return subcommands.ExitFailure
+	}
+
+	return subcommands.ExitSuccess
+}
+
+func getExiftoolConfigFileName() string {
+	exiftoolConfigFile, err := os.CreateTemp("", "xtool_xmp")
+	if err != nil {
+		fmt.Printf("failed to create exiftool XMP config file: %s\n", err)
+		os.Exit(1)
+	}
+	exiftoolConfigFilename := exiftoolConfigFile.Name()
+	if _, err = exiftoolConfigFile.Write([]byte(exiftoolXtoolXmpConfig)); err != nil {
+		fmt.Printf("failed to write exiftool XMP config file: %s\n", err)
+		os.Exit(1)
+	}
+	if err = exiftoolConfigFile.Close(); err != nil {
+		fmt.Printf("failed to close exiftool XMP config file: %s\n", err)
+		os.Exit(1)
+	}
+	return exiftoolConfigFilename
+}
+
+const exiftoolXtoolXmpConfig = `
+%Image::ExifTool::UserDefined = (
+    'Image::ExifTool::XMP::xmp' => {
+        XtoolOriginalCameraModel => { },
+    },
+);
+
+1;
+`

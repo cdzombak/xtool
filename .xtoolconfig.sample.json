@@ -1,0 +1,6 @@
+{
+	"exiftool_bin": "/opt/homebrew/bin/exiftool",
+	"camswap_aliases": {
+		"n2dh": "NIKON D2H"
+	}
+}
