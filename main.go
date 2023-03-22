@@ -12,6 +12,7 @@ import (
 
 // TODO(cdzombak): Error flow throughout the application could really use cleanup
 //                 This code is littered with os.Exit(1) when ideally errors would bubble up to the top level.
+//                 https://github.com/cdzombak/xtool/issues/3
 
 var version = "<dev build>"
 
