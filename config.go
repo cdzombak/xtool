@@ -4,13 +4,14 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 )
 
 type AppConfig struct {
-	ExiftoolBin    string            `json:"exiftool_bin"` // absolute path to exiftool
-	CamswapAliases map[string]string `json:"camswap_aliases"`
+	ExiftoolBin    string            `json:"exiftool_bin,omitempty"` // absolute path to exiftool
+	CamswapAliases map[string]string `json:"camswap_aliases,omitempty"`
 }
 
 type BackupsConfig struct {
@@ -34,7 +35,6 @@ func GetAppConfig() AppConfig {
 	// - ~/.xtoolconfig
 
 	appConfig := AppConfig{}
-	discoveredAppConfig := false
 	appConfigPaths := []string{
 		filepath.Join(homeDir, ".config", "xtoolconfig.json"),
 		filepath.Join(homeDir, ".xtoolconfig.json"),
@@ -56,19 +56,25 @@ func GetAppConfig() AppConfig {
 			fmt.Printf("failed to parse '%s' as JSON: %s\n", configPath, err)
 			os.Exit(1)
 		}
-
-		discoveredAppConfig = true
 		break
 	}
-	if !discoveredAppConfig {
-		fmt.Printf("No xtool config file was found at any of these paths:\n\t%s\n", strings.Join(appConfigPaths, "\n\t"))
-		os.Exit(1)
+
+	// Fallback to finding exiftool in the path if it wasn't specified in a config:
+
+	if appConfig.ExiftoolBin == "" {
+		exiftoolPath, err := exec.LookPath("exiftool")
+		if err != nil {
+			fmt.Println("exiftool_bin was not specified in config and is missing from $PATH")
+			fmt.Printf("$PATH search failed with: %s\n", err)
+			os.Exit(1)
+		}
+		appConfig.ExiftoolBin = exiftoolPath
 	}
 
 	// Validate the xtoolconfig:
 
 	if stat, err := os.Stat(appConfig.ExiftoolBin); err != nil {
-		fmt.Printf("bad exiftool path '%s': %s\n", appConfig.ExiftoolBin, err)
+		fmt.Printf("bad path to exiftool binary '%s': %s\n", appConfig.ExiftoolBin, err)
 		os.Exit(1)
 	} else if !IsExecAny(stat.Mode()) {
 		fmt.Printf("exiftool at '%s' is not executable\n", appConfig.ExiftoolBin)
