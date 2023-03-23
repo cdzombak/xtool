@@ -26,3 +26,12 @@ build: lint ## Build (for the current platform & architecture) to ./out
 .PHONY: install
 install: ## Build & install dateutil to /usr/local/bin, without linting
 	go build -ldflags="-X main.version=${VERSION}" -o /usr/local/bin/${BIN_NAME} .
+
+.PHONY: applescript-install
+applescript-install: ## Copy supporting AppleScripts to ~/Library/Scripts/Applications/Finder
+	cp -f "applescript/xtool - Camswap ND2X.scpt" "$$HOME/Library/Scripts/Applications/Finder"
+	cp -f "applescript/xtool - Camswap Restore (in place).scpt" "$$HOME/Library/Scripts/Applications/Finder"
+	cp -f "applescript/xtool - Camswap Sfp.scpt" "$$HOME/Library/Scripts/Applications/Finder"
+	cp -f "applescript/xtool - Inspect Camswap.scpt" "$$HOME/Library/Scripts/Applications/Finder"
+	cp -f "applescript/xtool - Inspect GPS.scpt" "$$HOME/Library/Scripts/Applications/Finder"
+	cp -f "applescript/xtool - Remove GPS (in place).scpt" "$$HOME/Library/Scripts/Applications/Finder"
