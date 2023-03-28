@@ -26,9 +26,8 @@ func main() {
 	subcommands.Register(&rmlocCmd{}, "EXIF modification")
 	subcommands.Register(&inspectCmd{}, "EXIF inspection")
 	subcommands.Register(&neatImgCmd{}, "noise reduction")
+	subcommands.Register(&x3fJpgCmd{}, "Sigma X3F")
 
-	// TODO(cdzombak): x3jpg - extract JPEG from Sigma X3F RAW files
-	// TODO(cdzombak)(maybe): sigmaker [-r] - strip/restore Sigma maker EXIF data (need to deal with different folders and extensions)
 
 	flag.Parse()
 	ctx := context.Background()

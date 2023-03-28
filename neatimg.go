@@ -41,7 +41,7 @@ func (p *neatImgCmd) SetFlags(f *flag.FlagSet) {
 	// it's not possible to write into a subdir with no suffix. I don't want to complicate this CLI with something I won't use.
 	f.StringVar(&p.outDir, "d", "", "Write denoised images to this directory.")
 	f.BoolVar(&p.verbose, "v", false, "Print full NeatImageCL output for each image.")
-	f.BoolVar(&p.verbose2, "vv", false, "Print NeatImageCL commands and full exiftool output.")
+	f.BoolVar(&p.verbose2, "vv", false, "Print NeatImageCL commands and their full output.")
 }
 
 func (p *neatImgCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) subcommands.ExitStatus {
