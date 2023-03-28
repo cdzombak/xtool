@@ -30,7 +30,7 @@ func (*neatImgCmd) Synopsis() string {
 
 func (*neatImgCmd) Usage() string {
 	return `neatimg [-q jpg_quality] [-d out_dir] [-v|-vv] file1.jpg [file2.nef ...]:
-  Denoise images with the NeatImage CLI tool. Uses Smart Profile and Auto Fine Tune. All other settings (eg. filename suffix, default preset) are controlled by the defaults in the Neat Image GUI settings.
+  Denoise images with the NeatImage CLI tool. Uses Smart Profile. All other settings (eg. filename suffix, default preset) are controlled by the defaults in the Neat Image GUI settings.
 `
 }
 
