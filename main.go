@@ -26,9 +26,9 @@ func main() {
 	subcommands.Register(&rmlocCmd{}, "EXIF modification")
 	subcommands.Register(&inspectCmd{}, "EXIF inspection")
 
-	// SOMEDAY(cdzombak): x3f extract, etc.
-	// https://github.com/Kalpanika/x3f
-	// (but that doesn't build natively on macOS, so ... not dealing with it now)
+	// TODO(cdzombak): x3jpg - extract JPEG from Sigma X3F RAW files
+	// TODO(cdzombak)(maybe): sigmaker [-r] - strip/restore Sigma maker EXIF data (need to deal with different folders and extensions)
+	// TODO(cdzombak): neat image - process with customizable profiles dir, preset name, and -s|-d. some prefs from JSON, some from args, and all use GUI defaults as needed.
 
 	flag.Parse()
 	ctx := context.Background()
