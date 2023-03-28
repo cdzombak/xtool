@@ -25,10 +25,10 @@ func main() {
 	subcommands.Register(&camswapCmd{}, "EXIF modification")
 	subcommands.Register(&rmlocCmd{}, "EXIF modification")
 	subcommands.Register(&inspectCmd{}, "EXIF inspection")
+	subcommands.Register(&neatImgCmd{}, "noise reduction")
 
 	// TODO(cdzombak): x3jpg - extract JPEG from Sigma X3F RAW files
 	// TODO(cdzombak)(maybe): sigmaker [-r] - strip/restore Sigma maker EXIF data (need to deal with different folders and extensions)
-	// TODO(cdzombak): neat image - process with customizable profiles dir, preset name, and -s|-d. some prefs from JSON, some from args, and all use GUI defaults as needed.
 
 	flag.Parse()
 	ctx := context.Background()
@@ -52,9 +52,6 @@ func (p *versionCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{
 	fmt.Println(color.CyanString("https://www.github.com/cdzombak/xtool"))
 	fmt.Println()
 	fmt.Println("a photo workflow tool by chris dzombak https://www.dzombak.com")
-	fmt.Println()
-	fmt.Println("(particularly useful for tricking DxO into")
-	fmt.Println(" processing files from unsupported cameras)")
 	fmt.Println()
 	fmt.Println(color.MagentaString("run `xtool help` for usage."))
 	fmt.Println()

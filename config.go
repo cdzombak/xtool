@@ -12,6 +12,11 @@ import (
 type AppConfig struct {
 	ExiftoolBin    string            `json:"exiftool_bin,omitempty"` // absolute path to exiftool
 	CamswapAliases map[string]string `json:"camswap_aliases,omitempty"`
+	NeatImage      struct {
+		NeatImageBin      string `json:"neat_image_bin,omitempty"`
+		ProfilesFolder    string `json:"profiles_folder"`
+		DefaultJpgQuality int    `json:"default_jpg_quality"`
+	} `json:"neat_image,omitempty"`
 }
 
 type BackupsConfig struct {
