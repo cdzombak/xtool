@@ -34,7 +34,7 @@ func (*camswapCmd) Usage() string {
 
 func (p *camswapCmd) SetFlags(f *flag.FlagSet) {
 	f.BoolVar(&p.suffix, "s", false, "Write modified images to new files named with a suffix derived from the camera name/alias, rather than to the originals.")
-	f.StringVar(&p.outDir, "d", "", "Write modified images to a subdirectory with this name.")
+	f.StringVar(&p.outDir, "d", "", "Write modified images to this directory.")
 	f.BoolVar(&p.verbose, "v", false, "Print full exiftool output for each image.")
 	f.BoolVar(&p.verbose2, "vv", false, "Print exiftool commands and full exiftool output.")
 
@@ -68,7 +68,7 @@ func (p *camswapCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{
 		}
 
 		if p.outDir != "" && p.suffix {
-			exiftoolArgs = append(exiftoolArgs, "-o", fmt.Sprintf("%s%s%%d%%f_restored.%%e", p.outDir, string(os.PathSeparator)))
+			exiftoolArgs = append(exiftoolArgs, "-o", fmt.Sprintf("%s%s%%f_restored.%%e", p.outDir, string(os.PathSeparator)))
 		} else if p.suffix {
 			exiftoolArgs = append(exiftoolArgs, "-o", "%d%f_restored.%e")
 		} else if p.outDir != "" {
