@@ -4,6 +4,10 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
+	"time"
+
+	"github.com/fatih/color"
 )
 
 // ExiftoolProcess returns list of files successfully processed, and map of filename -> error.
@@ -25,29 +29,14 @@ func ExiftoolProcess(args []string, files []string, appConfig AppConfig, verbose
 			fmt.Printf("%s %s\n", appConfig.ExiftoolBin, strings.Join(fullArgs, " "))
 		}
 
-		cmd := exec.Command(appConfig.ExiftoolBin, fullArgs...)
-		cmdOut, err := cmd.CombinedOutput()
+		cmdOut, err := RunCmd(appConfig.ExiftoolBin, fullArgs)
 		if err != nil {
-			var exitError *exec.ExitError
-			if !errors.As(err, &exitError) {
-				errs[imgFilename] = fmt.Errorf("failed to run exiftool: %w", err)
-				errorPrintln(errs[imgFilename].Error())
-				continue
-			}
-		}
-		if cmd.ProcessState == nil {
-			panic("cmd.ProcessState should not be nil after running")
-		}
-		exitCode := cmd.ProcessState.ExitCode()
-		cmdOutStr := string(cmdOut)
-		cmdOutStr = strings.TrimSpace(cmdOutStr)
-		if exitCode != 0 {
-			errs[imgFilename] = fmt.Errorf("exiftool error: %s", cmdOutStr)
+			errs[imgFilename] = err
 			errorPrintln(errs[imgFilename].Error())
 			continue
 		}
 		if verbose {
-			fmt.Println(cmdOutStr)
+			fmt.Println(cmdOut)
 		}
 
 		exiftoolBackupFilename := fmt.Sprintf("%s_original", imgFilename)

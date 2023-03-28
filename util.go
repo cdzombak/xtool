@@ -1,9 +1,12 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
+	"strings"
 	"time"
 )
 
@@ -57,4 +60,25 @@ func MustUserHomeDir() string {
 
 func IsExecAny(mode os.FileMode) bool {
 	return mode&0111 != 0
+}
+
+func RunCmd(bin string, args []string) (string, error) {
+	cmd := exec.Command(bin, args...)
+	cmdOut, err := cmd.CombinedOutput()
+	if err != nil {
+		var exitError *exec.ExitError
+		if !errors.As(err, &exitError) {
+			return "", fmt.Errorf("failed to run %s: %w", filepath.Base(bin), err)
+		}
+	}
+	if cmd.ProcessState == nil {
+		panic("cmd.ProcessState should not be nil after running")
+	}
+	exitCode := cmd.ProcessState.ExitCode()
+	cmdOutStr := string(cmdOut)
+	cmdOutStr = strings.TrimSpace(cmdOutStr)
+	if exitCode != 0 {
+		return cmdOutStr, fmt.Errorf("%s error: %s", filepath.Base(bin), cmdOutStr)
+	}
+	return cmdOutStr, nil
 }
