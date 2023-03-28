@@ -68,9 +68,9 @@ func (p *camswapCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{
 		}
 
 		if p.outDir != "" && p.suffix {
-			exiftoolArgs = append(exiftoolArgs, "-o", fmt.Sprintf("%s%s%%f_restored.%%e", p.outDir, string(os.PathSeparator)))
+			exiftoolArgs = append(exiftoolArgs, "-o", fmt.Sprintf("%s%s%%f_unswap.%%e", p.outDir, string(os.PathSeparator)))
 		} else if p.suffix {
-			exiftoolArgs = append(exiftoolArgs, "-o", "%d%f_restored.%e")
+			exiftoolArgs = append(exiftoolArgs, "-o", "%d%f_unswap.%e")
 		} else if p.outDir != "" {
 			exiftoolArgs = append(exiftoolArgs, "-o", fmt.Sprintf("%s%s", p.outDir, string(os.PathSeparator)))
 		}
