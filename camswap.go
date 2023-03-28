@@ -13,7 +13,8 @@ import (
 
 type camswapCmd struct {
 	restore     bool
-	separate    bool
+	suffix      bool
+	outDir      string
 	verbose     bool
 	verbose2    bool
 	newCamModel string
@@ -24,7 +25,7 @@ func (*camswapCmd) Name() string     { return "camswap" }
 func (*camswapCmd) Synopsis() string { return "Swap in a different camera name." }
 
 func (*camswapCmd) Usage() string {
-	return `camswap [-c CAM_MODEL|-c CAM_ALIAS] [-r] [-s] [-v|-vv] file1.jpg [file2.nef ...]:
+	return `camswap [-c CAM_MODEL|-c CAM_ALIAS] [-r] [-s] [-d out_dir] [-v|-vv] file1.jpg [file2.nef ...]:
   Swaps a different camera model into the given photos' EXIF data.
   Persists the original name in an XMP attribute for restoration with the -r flag.
   Exactly one of (-c, -r) is required.
@@ -32,11 +33,13 @@ func (*camswapCmd) Usage() string {
 }
 
 func (p *camswapCmd) SetFlags(f *flag.FlagSet) {
-	f.BoolVar(&p.restore, "r", false, "Restore the original camera name from xtool's XMP attribute.")
-	f.BoolVar(&p.separate, "s", false, "Write modified images to new files with a suffix, rather than to the originals.")
-	f.StringVar(&p.newCamModel, "c", "", "Camera model to swap in (or alias defined in camswap_aliases).")
+	f.BoolVar(&p.suffix, "s", false, "Write modified images to new files named with a suffix derived from the camera name/alias, rather than to the originals.")
+	f.StringVar(&p.outDir, "d", "", "Write modified images to a subdirectory with this name.")
 	f.BoolVar(&p.verbose, "v", false, "Print full exiftool output for each image.")
 	f.BoolVar(&p.verbose2, "vv", false, "Print exiftool commands and full exiftool output.")
+
+	f.StringVar(&p.newCamModel, "c", "", "Camera model to swap in (or alias defined in camswap_aliases).")
+	f.BoolVar(&p.restore, "r", false, "Restore the original camera name from xtool's XMP attribute.")
 }
 
 func (p *camswapCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) subcommands.ExitStatus {
@@ -64,8 +67,12 @@ func (p *camswapCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{
 			"-if", "$XtoolOriginalCameraModel",
 		}
 
-		if p.separate {
+		if p.outDir != "" && p.suffix {
+			exiftoolArgs = append(exiftoolArgs, "-o", fmt.Sprintf("%s%s%%d%%f_restored.%%e", p.outDir, string(os.PathSeparator)))
+		} else if p.suffix {
 			exiftoolArgs = append(exiftoolArgs, "-o", "%d%f_restored.%e")
+		} else if p.outDir != "" {
+			exiftoolArgs = append(exiftoolArgs, "-o", fmt.Sprintf("%s%s", p.outDir, string(os.PathSeparator)))
 		}
 	} else {
 		newModel := p.newCamModel
@@ -80,15 +87,13 @@ func (p *camswapCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{
 			"-if", "not $XtoolOriginalCameraModel",
 		}
 
-		if p.separate {
-			exiftoolArgs = append(
-				exiftoolArgs,
-				"-o",
-				fmt.Sprintf(
-					"%%d%%f_%s.%%e",
-					strings.Replace(p.newCamModel, " ", "-", -1),
-				),
-			)
+		suffixSafeCamModel := strings.Replace(p.newCamModel, " ", "-", -1)
+		if p.outDir != "" && p.suffix {
+			exiftoolArgs = append(exiftoolArgs, "-o", fmt.Sprintf("%s%s%%d%%f_%s.%%e", p.outDir, string(os.PathSeparator), suffixSafeCamModel))
+		} else if p.suffix {
+			exiftoolArgs = append(exiftoolArgs, "-o", fmt.Sprintf("%%d%%f_%s.%%e", suffixSafeCamModel))
+		} else if p.outDir != "" {
+			exiftoolArgs = append(exiftoolArgs, "-o", fmt.Sprintf("%s%s", p.outDir, string(os.PathSeparator)))
 		}
 	}
 

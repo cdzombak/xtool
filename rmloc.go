@@ -4,13 +4,15 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"os"
 
 	"github.com/fatih/color"
 	"github.com/google/subcommands"
 )
 
 type rmlocCmd struct {
-	separate  bool
+	suffix    bool
+	outDir    string
 	verbose   bool
 	verbose2  bool
 	appConfig AppConfig
@@ -26,7 +28,8 @@ func (*rmlocCmd) Usage() string {
 }
 
 func (p *rmlocCmd) SetFlags(f *flag.FlagSet) {
-	f.BoolVar(&p.separate, "s", false, "Write modified images to new files with a suffix, rather than to the originals.")
+	f.BoolVar(&p.suffix, "s", false, "Write modified images to new files named with the suffix _noGPS, rather than to the originals.")
+	f.StringVar(&p.outDir, "d", "", "Write modified images to a subdirectory with this name.")
 	f.BoolVar(&p.verbose, "v", false, "Print full exiftool output for each image.")
 	f.BoolVar(&p.verbose2, "vv", false, "Print exiftool commands and full exiftool output.")
 }
@@ -44,8 +47,12 @@ func (p *rmlocCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{})
 	p.appConfig = GetAppConfig()
 
 	exiftoolArgs := []string{"-gps*="}
-	if p.separate {
+	if p.outDir != "" && p.suffix {
+		exiftoolArgs = append(exiftoolArgs, "-o", fmt.Sprintf("%s%s%%d%%f_noGPS.%%e", p.outDir, string(os.PathSeparator)))
+	} else if p.suffix {
 		exiftoolArgs = append(exiftoolArgs, "-o", "%d%f_noGPS.%e")
+	} else if p.outDir != "" {
+		exiftoolArgs = append(exiftoolArgs, "-o", fmt.Sprintf("%s%s", p.outDir, string(os.PathSeparator)))
 	}
 
 	successes, failures := ExiftoolProcess(
