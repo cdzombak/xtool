@@ -30,9 +30,4 @@ install: ## Build & install dateutil to /usr/local/bin, without linting
 .PHONY: applescript-install
 applescript-install: ## Copy supporting AppleScripts to ~/Library/Scripts/Applications/Finder
 	./applescript/restore-resources.sh
-	cp -f "applescript/xtool - Camswap ND2X.scpt" "$$HOME/Library/Scripts/Applications/Finder"
-	cp -f "applescript/xtool - Camswap Restore (in place).scpt" "$$HOME/Library/Scripts/Applications/Finder"
-	cp -f "applescript/xtool - Camswap Sfp.scpt" "$$HOME/Library/Scripts/Applications/Finder"
-	cp -f "applescript/xtool - Inspect Camswap.scpt" "$$HOME/Library/Scripts/Applications/Finder"
-	cp -f "applescript/xtool - Inspect GPS.scpt" "$$HOME/Library/Scripts/Applications/Finder"
-	cp -f "applescript/xtool - Remove GPS (in place).scpt" "$$HOME/Library/Scripts/Applications/Finder"
+	cp -vf "applescript/xtool - "*.scpt "$$HOME/Library/Scripts/Applications/Finder"
