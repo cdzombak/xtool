@@ -49,14 +49,14 @@ func (p *x3fJpgCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}
 	p.appConfig = GetAppConfig()
 
 	// Fallback to finding x3f_extract in the path if it wasn't specified in a config:
-	if p.appConfig.X3fBin == "" {
+	if p.appConfig.GetX3fExtractBin() == "" {
 		x3fBin, err := exec.LookPath("x3f_extract")
 		if err != nil {
-			fmt.Println("x3f_bin was not specified in config and x3f_extract is missing from $PATH")
+			fmt.Println("x3f_extract_bin was not specified in config and x3f_extract is missing from $PATH")
 			fmt.Printf("$PATH search failed with: %s\n", err)
 			os.Exit(1)
 		}
-		p.appConfig.X3fBin = x3fBin
+		p.appConfig.X3fExtractBin = x3fBin
 	}
 
 	x3fArgs := []string{"-jpg"}
@@ -116,10 +116,10 @@ func X3fJpgProcess(args []string, files []string, appConfig AppConfig, verbose, 
 		fullArgs[len(args)] = imgFilename
 
 		if verbose2 {
-			fmt.Printf("%s %s\n", appConfig.X3fBin, strings.Join(fullArgs, " "))
+			fmt.Printf("%s %s\n", appConfig.GetX3fExtractBin(), strings.Join(fullArgs, " "))
 		}
 
-		cmdOut, err := RunCmd(appConfig.X3fBin, fullArgs)
+		cmdOut, err := RunCmd(appConfig.GetX3fExtractBin(), fullArgs)
 		if err != nil {
 			errs[imgFilename] = err
 			errorPrintln(errs[imgFilename].Error())

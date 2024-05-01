@@ -17,7 +17,8 @@ type AppConfig struct {
 		ProfilesFolder    string `json:"profiles_folder"`
 		DefaultJpgQuality int    `json:"default_jpg_quality"`
 	} `json:"neat_image,omitempty"`
-	X3fBin string `json:"x3f_bin,omitempty"`
+	DeprecatedX3fBin string `json:"x3f_bin,omitempty"` // deprecated
+	X3fExtractBin    string `json:"x3f_extract_bin,omitempty"`
 }
 
 type BackupsConfig struct {
@@ -93,6 +94,13 @@ func GetAppConfig() AppConfig {
 
 	// config is valid!
 	return appConfig
+}
+
+func (c AppConfig) GetX3fExtractBin() string {
+	if c.X3fExtractBin != "" {
+		return c.X3fExtractBin
+	}
+	return c.DeprecatedX3fBin
 }
 
 var backupConfigCache = make(map[string]BackupsConfig)

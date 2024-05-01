@@ -8,5 +8,5 @@
 		"profiles_folder": "/Users/cdzombak/Documents/Neat Image v9 Standalone/Profiles",
 		"default_jpg_quality": 90
 	},
-	"x3f_bin": "/Users/cdzombak/Downloads/x3f_tools-0.57-osx-universal/bin/x3f_extract"
+	"x3f_extract_bin": "/Users/cdzombak/Downloads/x3f_tools-0.57-osx-universal/bin/x3f_extract"
 }
