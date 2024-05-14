@@ -24,7 +24,7 @@ build: lint ## Build (for the current platform & architecture) to ./out
 	go build -ldflags="-X main.version=${VERSION}" -o ./out/${BIN_NAME} .
 
 .PHONY: install
-install: ## Build & install dateutil to /usr/local/bin, without linting
+install: ## Build & install xtool to /usr/local/bin, without linting
 	go build -ldflags="-X main.version=${VERSION}" -o /usr/local/bin/${BIN_NAME} .
 
 .PHONY: applescript-install
