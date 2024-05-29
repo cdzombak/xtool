@@ -10,15 +10,21 @@ import (
 	"github.com/google/subcommands"
 )
 
-// TODO(cdzombak): Error flow throughout the application could really use cleanup
-//                 This code is littered with os.Exit(1) when ideally errors would bubble up to the top level.
-//                 https://github.com/cdzombak/xtool/issues/3
-
 var version = "<dev>"
 
 type versionCmd struct{}
 
 func main() {
+	ctx := context.Background()
+	ctx = CtxWthErrPrintf(ctx, color.New(color.FgRed).PrintfFunc())
+	ctx = CtxWthErrPrintln(ctx, color.New(color.FgRed).PrintlnFunc())
+
+	cfg, err := buildAppConfig(ctx)
+	if err != nil {
+		ErrPrintf(ctx, "error getting app config: %s\n", err)
+		os.Exit(int(subcommands.ExitFailure))
+	}
+	ctx = CtxWthAppConfig(ctx, cfg)
 
 	subcommands.Register(subcommands.HelpCommand(), "")
 	subcommands.Register(&versionCmd{}, "")
@@ -27,10 +33,10 @@ func main() {
 	subcommands.Register(&inspectCmd{}, "EXIF inspection")
 	subcommands.Register(&neatImgCmd{}, "noise reduction")
 	subcommands.Register(&x3fJpgCmd{}, "Sigma X3F")
-
+	// TODO(cdzombak): "install" subcommand that can install/update x3f_extract (to somewhere in path) and recommended applescripts
 
 	flag.Parse()
-	ctx := context.Background()
+
 	os.Exit(int(subcommands.Execute(ctx)))
 }
 

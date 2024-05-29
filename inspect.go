@@ -34,7 +34,7 @@ func (p *inspectCmd) SetFlags(f *flag.FlagSet) {
 	f.BoolVar(&p.swap, "s", false, "Inspect image files for camera-swap data.")
 }
 
-func (p *inspectCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) subcommands.ExitStatus {
+func (p *inspectCmd) Execute(ctx context.Context, f *flag.FlagSet, _ ...interface{}) subcommands.ExitStatus {
 	if len(f.Args()) == 0 {
 		f.Usage()
 		return subcommands.ExitFailure
@@ -45,9 +45,13 @@ func (p *inspectCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{
 		p.location = true
 	}
 
-	p.appConfig = GetAppConfig()
+	p.appConfig = AppConfigFromCtx(ctx)
 
-	exiftoolConfigFilename := getExiftoolConfigFileName()
+	exiftoolConfigFilename, err := getExiftoolConfigFileName()
+	if err != nil {
+		ErrPrint(ctx, err)
+		return subcommands.ExitFailure
+	}
 	//goland:noinspection GoUnhandledErrorResult
 	defer os.Remove(exiftoolConfigFilename)
 

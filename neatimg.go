@@ -4,7 +4,6 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
@@ -44,7 +43,7 @@ func (p *neatImgCmd) SetFlags(f *flag.FlagSet) {
 	f.BoolVar(&p.verbose2, "vv", false, "Print NeatImageCL commands and their full output.")
 }
 
-func (p *neatImgCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) subcommands.ExitStatus {
+func (p *neatImgCmd) Execute(ctx context.Context, f *flag.FlagSet, _ ...interface{}) subcommands.ExitStatus {
 	if p.verbose2 {
 		p.verbose = true
 	}
@@ -59,21 +58,21 @@ func (p *neatImgCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{
 		return subcommands.ExitFailure
 	}
 
-	p.appConfig = GetAppConfig()
+	p.appConfig = AppConfigFromCtx(ctx)
 
 	// Fallback to finding neat image in the path if it wasn't specified in a config:
 	if p.appConfig.NeatImage.NeatImageBin == "" {
 		neatImagePath, err := exec.LookPath(defaultNeatImageCLName)
 		if err != nil {
-			fmt.Println("neat_image.neat_image_bin was not specified in config and is missing from $PATH")
-			fmt.Printf("$PATH search failed with: %s\n", err)
-			os.Exit(1)
+			ErrPrintln(ctx, "neat_image.neat_image_bin was not specified in config and is missing from $PATH")
+			ErrPrintf(ctx, "$PATH search failed with: %s", err)
+			return subcommands.ExitFailure
 		}
 		p.appConfig.NeatImage.NeatImageBin = neatImagePath
 	}
 
 	if p.appConfig.NeatImage.DefaultJpgQuality < 0 || p.appConfig.NeatImage.DefaultJpgQuality > 100 {
-		fmt.Printf("invalid neat_image.default_jpg_quality '%d'\n", p.appConfig.NeatImage.DefaultJpgQuality)
+		ErrPrintf(ctx, "invalid neat_image.default_jpg_quality '%d'\n", p.appConfig.NeatImage.DefaultJpgQuality)
 	}
 	targetJpgQuality := p.jpgQuality
 	if targetJpgQuality == 0 {
@@ -88,7 +87,7 @@ func (p *neatImgCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{
 	if p.appConfig.NeatImage.ProfilesFolder != "" {
 		pf, err := filepath.Abs(p.appConfig.NeatImage.ProfilesFolder)
 		if err != nil {
-			fmt.Printf("could not get path to profiles folder '%s': %s\n", p.appConfig.NeatImage.ProfilesFolder, err)
+			ErrPrintf(ctx, "could not get path to profiles folder '%s': %s\n", p.appConfig.NeatImage.ProfilesFolder, err)
 			return subcommands.ExitFailure
 		}
 		neatImgArgs = append(neatImgArgs, fmt.Sprintf("--profile-folder=%s", pf))

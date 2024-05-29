@@ -34,7 +34,7 @@ func (p *rmlocCmd) SetFlags(f *flag.FlagSet) {
 	f.BoolVar(&p.verbose2, "vv", false, "Print exiftool commands and full exiftool output.")
 }
 
-func (p *rmlocCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) subcommands.ExitStatus {
+func (p *rmlocCmd) Execute(ctx context.Context, f *flag.FlagSet, _ ...interface{}) subcommands.ExitStatus {
 	if p.verbose2 {
 		p.verbose = true
 	}
@@ -44,7 +44,7 @@ func (p *rmlocCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{})
 		return subcommands.ExitFailure
 	}
 
-	p.appConfig = GetAppConfig()
+	p.appConfig = AppConfigFromCtx(ctx)
 
 	exiftoolArgs := []string{"-gps*="}
 	if p.outDir != "" && p.suffix {
@@ -56,6 +56,7 @@ func (p *rmlocCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{})
 	}
 
 	successes, failures := ExiftoolProcess(
+		ctx,
 		exiftoolArgs,
 		f.Args(),
 		p.appConfig,

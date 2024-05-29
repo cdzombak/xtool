@@ -36,7 +36,7 @@ func (p *x3fJpgCmd) SetFlags(f *flag.FlagSet) {
 	f.BoolVar(&p.verbose2, "vv", false, "Print x3f_extract commands and their full output.")
 }
 
-func (p *x3fJpgCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) subcommands.ExitStatus {
+func (p *x3fJpgCmd) Execute(ctx context.Context, f *flag.FlagSet, _ ...interface{}) subcommands.ExitStatus {
 	if p.verbose2 {
 		p.verbose = true
 	}
@@ -46,15 +46,15 @@ func (p *x3fJpgCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}
 		return subcommands.ExitFailure
 	}
 
-	p.appConfig = GetAppConfig()
+	p.appConfig = AppConfigFromCtx(ctx)
 
 	// Fallback to finding x3f_extract in the path if it wasn't specified in a config:
 	if p.appConfig.GetX3fExtractBin() == "" {
 		x3fBin, err := exec.LookPath("x3f_extract")
 		if err != nil {
-			fmt.Println("x3f_extract_bin was not specified in config and x3f_extract is missing from $PATH")
-			fmt.Printf("$PATH search failed with: %s\n", err)
-			os.Exit(1)
+			ErrPrintln(ctx, "x3f_extract_bin was not specified in config and x3f_extract is missing from $PATH")
+			ErrPrintf(ctx, "$PATH search failed with: %s\n", err)
+			return subcommands.ExitFailure
 		}
 		p.appConfig.X3fExtractBin = x3fBin
 	}
@@ -67,7 +67,7 @@ func (p *x3fJpgCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}
 		// prep output directory:
 		err := os.MkdirAll(p.outDir, 0777)
 		if err != nil {
-			fmt.Printf("failed to ensure '%s' exists: %s\n", p.outDir, err)
+			ErrPrintf(ctx, "failed to ensure '%s' exists: %s\n", p.outDir, err)
 			return subcommands.ExitFailure
 		}
 	}

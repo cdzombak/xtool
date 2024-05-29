@@ -42,8 +42,7 @@ func (c BackupsConfig) PrepareBackupsDir(filename string, startTime time.Time) (
 	if backupsPath != "" {
 		err := os.MkdirAll(backupsPath, parentMode)
 		if err != nil {
-			fmt.Printf("failed to create backups directory '%s': %s\n", backupsPath, err)
-			os.Exit(1)
+			return "", fmt.Errorf("failed to create backups directory '%s': %w", backupsPath, err)
 		}
 	}
 	return backupsPath, nil
@@ -52,8 +51,7 @@ func (c BackupsConfig) PrepareBackupsDir(filename string, startTime time.Time) (
 func MustUserHomeDir() string {
 	retv, err := os.UserHomeDir()
 	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		panic("MustUserHomeDir: " + err.Error())
 	}
 	return filepath.Clean(retv)
 }

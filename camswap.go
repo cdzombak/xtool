@@ -42,7 +42,7 @@ func (p *camswapCmd) SetFlags(f *flag.FlagSet) {
 	f.BoolVar(&p.restore, "r", false, "Restore the original camera name from xtool's XMP attribute.")
 }
 
-func (p *camswapCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) subcommands.ExitStatus {
+func (p *camswapCmd) Execute(ctx context.Context, f *flag.FlagSet, _ ...interface{}) subcommands.ExitStatus {
 	if p.verbose2 {
 		p.verbose = true
 	}
@@ -52,9 +52,13 @@ func (p *camswapCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{
 		return subcommands.ExitFailure
 	}
 
-	p.appConfig = GetAppConfig()
+	p.appConfig = AppConfigFromCtx(ctx)
 
-	exiftoolConfigFilename := getExiftoolConfigFileName()
+	exiftoolConfigFilename, err := getExiftoolConfigFileName()
+	if err != nil {
+		ErrPrint(ctx, err)
+		return subcommands.ExitFailure
+	}
 	//goland:noinspection GoUnhandledErrorResult
 	defer os.Remove(exiftoolConfigFilename)
 
@@ -98,6 +102,7 @@ func (p *camswapCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{
 	}
 
 	successes, failures := ExiftoolProcess(
+		ctx,
 		exiftoolArgs,
 		f.Args(),
 		p.appConfig,
@@ -129,22 +134,19 @@ func (p *camswapCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{
 	return subcommands.ExitSuccess
 }
 
-func getExiftoolConfigFileName() string {
+func getExiftoolConfigFileName() (string, error) {
 	exiftoolConfigFile, err := os.CreateTemp("", "xtool_xmp")
 	if err != nil {
-		fmt.Printf("failed to create exiftool XMP config file: %s\n", err)
-		os.Exit(1)
+		return "", fmt.Errorf("failed to create exiftool XMP config file: %w", err)
 	}
 	exiftoolConfigFilename := exiftoolConfigFile.Name()
 	if _, err = exiftoolConfigFile.Write([]byte(exiftoolXtoolXmpConfig)); err != nil {
-		fmt.Printf("failed to write exiftool XMP config file: %s\n", err)
-		os.Exit(1)
+		return "", fmt.Errorf("failed to write exiftool XMP config file: %w", err)
 	}
 	if err = exiftoolConfigFile.Close(); err != nil {
-		fmt.Printf("failed to close exiftool XMP config file: %s\n", err)
-		os.Exit(1)
+		return "", fmt.Errorf("failed to close exiftool XMP config file: %w", err)
 	}
-	return exiftoolConfigFilename
+	return exiftoolConfigFilename, nil
 }
 
 const exiftoolXtoolXmpConfig = `
