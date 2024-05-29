@@ -48,7 +48,18 @@ func (p *x3fJpgCmd) Execute(ctx context.Context, f *flag.FlagSet, _ ...interface
 
 	p.appConfig = AppConfigFromCtx(ctx)
 
-	// Fallback to finding x3f_extract in the path if it wasn't specified in a config:
+	// We try to find x3f_extract here instead of when validating the config to allow this program
+	// to work in the (common!) case where the user is not concerned with X3F files.
+
+	// Try finding x3f_extract in the path if it wasn't specified in a config:
+	if p.appConfig.GetX3fExtractBin() == "" {
+		if stat, err := os.Stat(LocalX3fExtractPath()); err == nil {
+			if IsExecAny(stat.Mode()) {
+				p.appConfig.X3fExtractBin = LocalX3fExtractPath()
+			}
+		}
+	}
+	// Fallback to finding x3f_extract in the path if it wasn't specified in a config or located in ~/.local/bin:
 	if p.appConfig.GetX3fExtractBin() == "" {
 		x3fBin, err := exec.LookPath("x3f_extract")
 		if err != nil {

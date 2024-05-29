@@ -33,7 +33,7 @@ func main() {
 	subcommands.Register(&inspectCmd{}, "EXIF inspection")
 	subcommands.Register(&neatImgCmd{}, "noise reduction")
 	subcommands.Register(&x3fJpgCmd{}, "Sigma X3F")
-	// TODO(cdzombak): "install" subcommand that can install/update x3f_extract (to somewhere in path) and recommended applescripts
+	// TODO(cdzombak): "install" subcommand that can install/update x3f_extract (to ~/.local/bin) and recommended applescripts (in ~/Library)
 
 	flag.Parse()
 
