@@ -28,12 +28,12 @@ func main() {
 
 	subcommands.Register(subcommands.HelpCommand(), "")
 	subcommands.Register(&versionCmd{}, "")
+	subcommands.Register(&installCmd{}, "")
 	subcommands.Register(&camswapCmd{}, "EXIF modification")
 	subcommands.Register(&rmlocCmd{}, "EXIF modification")
 	subcommands.Register(&inspectCmd{}, "EXIF inspection")
 	subcommands.Register(&neatImgCmd{}, "noise reduction")
 	subcommands.Register(&x3fJpgCmd{}, "Sigma X3F")
-	// TODO(cdzombak): "install" subcommand that can install/update x3f_extract (to ~/.local/bin) and recommended applescripts (in ~/Library)
 
 	flag.Parse()
 
@@ -52,11 +52,15 @@ func (*versionCmd) Usage() string {
 
 func (p *versionCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) subcommands.ExitStatus {
 	boldWhitePrintf := color.New(color.Bold, color.FgWhite).PrintfFunc()
-
 	boldWhitePrintf("xtool %s\n", version)
 	fmt.Println(color.CyanString("https://www.github.com/cdzombak/xtool"))
-	fmt.Println()
 	fmt.Println("a photo workflow tool by chris dzombak https://www.dzombak.com")
+	fmt.Println()
+	fmt.Printf(
+		"embedded x3f_extract: %s (installable via `%s`)\n",
+		X3fExtractVersion,
+		color.CyanString("xtool install -x3f-extract"),
+	)
 	fmt.Println()
 	fmt.Println(color.MagentaString("run `xtool help` for usage."))
 	fmt.Println()

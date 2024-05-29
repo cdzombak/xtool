@@ -1,6 +1,6 @@
 SHELL:=/usr/bin/env bash
 VERSION:=$(shell [ -z "$$(git tag --points-at HEAD)" ] && echo "$$(git describe --always --long --dirty | sed 's/^v//')" || echo "$$(git tag --points-at HEAD | sed 's/^v//')")
-GO_FILES:=$(shell find . -name '*.go' | grep -v /vendor/)
+X3F_EXTRACT_VERSION:=$(shell ./x3f_extract 2>/dev/null | grep -i "VERSION =" | rev | cut -d' ' -f1 | rev)
 BIN_NAME:=xtool
 
 default: help
@@ -16,12 +16,12 @@ clean: ## Remove built products in ./out
 
 .PHONY: lint
 lint: ## Lint all .go files
-	golangci-lint run *.go
+	golangci-lint run
 
 .PHONY: build
 build: lint ## Build (for the current platform & architecture) to ./out
 	mkdir -p out
-	go build -ldflags="-X main.version=${VERSION}" -o ./out/${BIN_NAME} .
+	go build -ldflags="-X main.version=${VERSION} -X main.X3fExtractVersion=${X3F_EXTRACT_VERSION}" -o ./out/${BIN_NAME} .
 
 .PHONY: install
 install: ## Build & install xtool to /usr/local/bin, without linting
