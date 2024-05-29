@@ -50,12 +50,12 @@ func (p *neatImgCmd) Execute(ctx context.Context, f *flag.FlagSet, _ ...interfac
 
 	if len(f.Args()) == 0 {
 		f.Usage()
-		return subcommands.ExitFailure
+		return subcommands.ExitUsageError
 	}
 
 	if p.jpgQuality < 0 || p.jpgQuality > 100 {
 		fmt.Printf("invalid -q: '%d'\n", p.jpgQuality)
-		return subcommands.ExitFailure
+		return subcommands.ExitUsageError
 	}
 
 	p.appConfig = AppConfigFromCtx(ctx)

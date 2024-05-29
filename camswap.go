@@ -49,7 +49,7 @@ func (p *camswapCmd) Execute(ctx context.Context, f *flag.FlagSet, _ ...interfac
 
 	if len(f.Args()) == 0 || (!p.restore && p.newCamModel == "") || (p.restore && p.newCamModel != "") {
 		f.Usage()
-		return subcommands.ExitFailure
+		return subcommands.ExitUsageError
 	}
 
 	p.appConfig = AppConfigFromCtx(ctx)

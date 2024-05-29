@@ -43,7 +43,7 @@ func (p *x3fJpgCmd) Execute(ctx context.Context, f *flag.FlagSet, _ ...interface
 
 	if len(f.Args()) == 0 {
 		f.Usage()
-		return subcommands.ExitFailure
+		return subcommands.ExitUsageError
 	}
 
 	p.appConfig = AppConfigFromCtx(ctx)

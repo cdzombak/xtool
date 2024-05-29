@@ -37,7 +37,7 @@ func (p *inspectCmd) SetFlags(f *flag.FlagSet) {
 func (p *inspectCmd) Execute(ctx context.Context, f *flag.FlagSet, _ ...interface{}) subcommands.ExitStatus {
 	if len(f.Args()) == 0 {
 		f.Usage()
-		return subcommands.ExitFailure
+		return subcommands.ExitUsageError
 	}
 
 	if !p.swap && !p.location {
