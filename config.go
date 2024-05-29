@@ -9,6 +9,7 @@ import (
 	"strings"
 )
 
+//goland:noinspection GoDeprecation
 type AppConfig struct {
 	ExiftoolBin    string            `json:"exiftool_bin,omitempty"` // absolute path to exiftool
 	CamswapAliases map[string]string `json:"camswap_aliases,omitempty"`
@@ -17,7 +18,7 @@ type AppConfig struct {
 		ProfilesFolder    string `json:"profiles_folder"`
 		DefaultJpgQuality int    `json:"default_jpg_quality"`
 	} `json:"neat_image,omitempty"`
-	DeprecatedX3fBin string `json:"x3f_bin,omitempty"` // deprecated
+	DeprecatedX3fBin string `json:"x3f_bin,omitempty"` // deprecated; retained here for backward compatibility
 	X3fExtractBin    string `json:"x3f_extract_bin,omitempty"`
 }
 
