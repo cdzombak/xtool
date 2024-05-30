@@ -1,8 +1,8 @@
 SHELL:=/usr/bin/env bash
 
-BIN_VERSION:=$(shell [ -z "$$(git tag --points-at HEAD)" ] && echo "$$(git describe --always --long --dirty | sed 's/^v//')" || echo "$$(git tag --points-at HEAD | sed 's/^v//')")
-X3F_EXTRACT_VERSION:=$(shell ./x3f_extract 2>/dev/null | grep -i "VERSION =" | rev | cut -d' ' -f1 | rev)
 BIN_NAME:=xtool
+BIN_VERSION:=$(shell ./.version.sh)
+X3F_EXTRACT_VERSION:=$(shell ./x3f_extract 2>/dev/null | grep -i "VERSION =" | rev | cut -d' ' -f1 | rev)
 
 default: help
 .PHONY: help

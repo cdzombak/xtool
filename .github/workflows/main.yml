@@ -171,7 +171,7 @@ jobs:
 
   homebrew:
     name: Update Homebrew Tap
-    needs: [meta, binaries]
+    needs: [meta, binaries, release]
     if: needs.meta.outputs.is_release == 'true'
     runs-on: ubuntu-latest
     steps:
@@ -191,7 +191,7 @@ jobs:
           target_linux_arm64: false
           version: v${{ needs.meta.outputs.bin_version }}
           install: 'bin.install "${{ needs.meta.outputs.bin_name }}"'
-          test: 'assert_match("${{ needs.meta.outputs.bin_version }}", shell_output("#{bin}/${{ needs.meta.outputs.bin_name }} -version"))'
+          test: 'assert_match("${{ needs.meta.outputs.bin_version }}", shell_output("#{bin}/${{ needs.meta.outputs.bin_name }} version"))'
 
   ntfy:
     name: Ntfy
