@@ -16,6 +16,9 @@ applescript-embed.tar: $(shell find ./applescript -type f -name '*.scpt' | sed '
 		./applescript/restore-resources.sh
 	./applescript/gen-archive.sh
 
+.PHONY: deps
+deps: applescript-embed.tar
+
 .PHONY: clean
 clean: ## Remove build products
 	rm -f applescript-embed.tar
