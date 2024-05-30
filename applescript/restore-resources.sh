@@ -2,12 +2,11 @@
 set -uo pipefail
 IFS=$'\n\t'
 
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
 pushd "$SCRIPT_DIR" || exit 1
 
 echo "restoring resource forks ..."
-find . -iname '*.scpt' -type f -print0 | while read -r -d $'\0' file
-do
+find . -iname '*.scpt' -type f -print0 | while read -r -d $'\0' file; do
   if [ -f "$file.rsrc" ]; then
     echo "$file ..."
     Rez "$file.rsrc" -append -o "$file"
