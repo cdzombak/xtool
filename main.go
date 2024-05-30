@@ -40,13 +40,13 @@ func main() {
 	os.Exit(int(subcommands.Execute(ctx)))
 }
 
-func (*versionCmd) Name() string               { return "Version" }
-func (*versionCmd) Synopsis() string           { return "Print Version and other information." }
+func (*versionCmd) Name() string               { return "version" }
+func (*versionCmd) Synopsis() string           { return "Print version and other information." }
 func (p *versionCmd) SetFlags(_ *flag.FlagSet) {}
 
 func (*versionCmd) Usage() string {
-	return `Version:
-  Prints Version, build, and other information about xtool.
+	return `version:
+  Prints version, build, and other information about xtool.
 `
 }
 
@@ -54,15 +54,22 @@ func (p *versionCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{
 	boldWhitePrintf := color.New(color.Bold, color.FgWhite).PrintfFunc()
 	boldWhitePrintf("xtool %s\n", Version)
 	fmt.Println(color.CyanString("https://www.github.com/cdzombak/xtool"))
-	fmt.Println("a photo workflow tool by chris dzombak https://www.dzombak.com")
+	fmt.Printf(
+		"a photo workflow tool by chris dzombak <%s>\n",
+		color.CyanString("https://www.dzombak.com"),
+	)
 	fmt.Println()
 	fmt.Printf(
 		"embedded x3f_extract: %s (installable via `%s`)\n",
 		X3fExtractVersion,
-		color.CyanString("xtool install -x3f-extract"),
+		color.MagentaString("xtool install -x3f-extract"),
 	)
+	fmt.Println(color.CyanString("https://github.com/Kalpanika/x3f"))
 	fmt.Println()
-	fmt.Println(color.MagentaString("run `xtool help` for usage."))
+	fmt.Printf(
+		"run `%s` for usage.\n",
+		color.MagentaString("xtool help"),
+	)
 	fmt.Println()
 
 	return subcommands.ExitSuccess
