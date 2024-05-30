@@ -5,29 +5,27 @@ BIN_NAME:=xtool
 
 default: help
 
-# via https://marmelab.com/blog/2016/02/29/auto-documented-makefile.html
 .PHONY: help
-help: ## Print help
+help: ## Display this help message
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
 
 .PHONY: clean
-clean: ## Remove built products in ./out
+clean: ## Remove build products
+	rm -f applescript-embed.tar
 	rm -rf ./out
 
+applescript-embed.tar:
+	./applescript/gen-archive.sh
+
 .PHONY: lint
-lint: ## Lint all .go files
+lint: applescript-embed.tar ## Lint all .go files
 	golangci-lint run
 
 .PHONY: build
-build: lint ## Build (for the current platform & architecture) to ./out
+build: applescript-embed.tar lint ## Build (for the current platform & architecture) to ./out
 	mkdir -p out
-	go build -ldflags="-X main.version=${VERSION} -X main.X3fExtractVersion=${X3F_EXTRACT_VERSION}" -o ./out/${BIN_NAME} .
+	go build -ldflags="-X main.Version=${VERSION} -X main.X3fExtractVersion=${X3F_EXTRACT_VERSION}" -o ./out/${BIN_NAME} .
 
 .PHONY: install
 install: ## Build & install xtool to /usr/local/bin, without linting
-	go build -ldflags="-X main.version=${VERSION}" -o /usr/local/bin/${BIN_NAME} .
-
-.PHONY: applescript-install
-applescript-install: ## Copy supporting AppleScripts to ~/Library/Scripts/Applications/Finder
-	./applescript/restore-resources.sh
-	cp -vf "applescript/xtool - "*.scpt "$$HOME/Library/Scripts/Applications/Finder"
+	go build -ldflags="-X main.Version=${VERSION} -X main.X3fExtractVersion=${X3F_EXTRACT_VERSION}" -o /usr/local/bin/${BIN_NAME} .

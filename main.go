@@ -10,7 +10,7 @@ import (
 	"github.com/google/subcommands"
 )
 
-var version = "<dev>"
+var Version = "<dev>"
 
 type versionCmd struct{}
 
@@ -40,19 +40,19 @@ func main() {
 	os.Exit(int(subcommands.Execute(ctx)))
 }
 
-func (*versionCmd) Name() string               { return "version" }
-func (*versionCmd) Synopsis() string           { return "Print version and other information." }
+func (*versionCmd) Name() string               { return "Version" }
+func (*versionCmd) Synopsis() string           { return "Print Version and other information." }
 func (p *versionCmd) SetFlags(_ *flag.FlagSet) {}
 
 func (*versionCmd) Usage() string {
-	return `version:
-  Prints version, build, and other information about xtool.
+	return `Version:
+  Prints Version, build, and other information about xtool.
 `
 }
 
 func (p *versionCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) subcommands.ExitStatus {
 	boldWhitePrintf := color.New(color.Bold, color.FgWhite).PrintfFunc()
-	boldWhitePrintf("xtool %s\n", version)
+	boldWhitePrintf("xtool %s\n", Version)
 	fmt.Println(color.CyanString("https://www.github.com/cdzombak/xtool"))
 	fmt.Println("a photo workflow tool by chris dzombak https://www.dzombak.com")
 	fmt.Println()
