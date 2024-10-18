@@ -90,7 +90,7 @@ jobs:
       - name: Prettier
         run: prettier --check .
       - name: Actionlint
-        uses: raven-actions/actionlint@v1.0.3
+        uses: raven-actions/actionlint@v2
       - name: Setup shfmt
         uses: mfinelli/setup-shfmt@v3.0.1
       - name: shfmt
