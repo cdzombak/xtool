@@ -60,7 +60,7 @@ func (p *camswapCmd) Execute(ctx context.Context, f *flag.FlagSet, _ ...interfac
 		return subcommands.ExitFailure
 	}
 	//goland:noinspection GoUnhandledErrorResult
-	defer os.Remove(exiftoolConfigFilename)
+	defer func() { _ = os.Remove(exiftoolConfigFilename) }()
 
 	var exiftoolArgs []string
 	if p.restore {
@@ -91,7 +91,7 @@ func (p *camswapCmd) Execute(ctx context.Context, f *flag.FlagSet, _ ...interfac
 			"-if", "not $XtoolOriginalCameraModel",
 		}
 
-		suffixSafeCamModel := strings.Replace(p.newCamModel, " ", "-", -1)
+		suffixSafeCamModel := strings.ReplaceAll(p.newCamModel, " ", "-")
 		if p.outDir != "" && p.suffix {
 			exiftoolArgs = append(exiftoolArgs, "-o", fmt.Sprintf("%s%s%%d%%f_%s.%%e", p.outDir, string(os.PathSeparator), suffixSafeCamModel))
 		} else if p.suffix {

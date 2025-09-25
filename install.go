@@ -10,7 +10,7 @@ import (
 	"os/exec"
 	"path/filepath"
 
-	"github.com/codeclysm/extract/v4"
+	extract "github.com/codeclysm/extract/v4"
 	"github.com/google/subcommands"
 )
 
@@ -90,7 +90,7 @@ func installApplescripts(ctx context.Context) error {
 		return fmt.Errorf("failed to create temporary directory: %w", err)
 	}
 	//goland:noinspection GoUnhandledErrorResult
-	defer os.RemoveAll(workDir)
+	defer func() { _ = os.RemoveAll(workDir) }()
 
 	buffer := bytes.NewBuffer(applescriptsArchive)
 	err = extract.Tar(ctx, buffer, workDir, nil)
