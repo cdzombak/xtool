@@ -1,5 +1,0 @@
-version: 2
-
-issues:
-  exclude-rules:
-    - text: "undefined: extract"
