@@ -18,7 +18,8 @@ func (c BackupsConfig) PrepareBackupsDir(filename string, startTime time.Time) (
 		return "", err
 	}
 	var parentMode os.FileMode
-	if c.BackupsLocation == BackupsLocSubDir {
+	switch c.BackupsLocation {
+	case BackupsLocSubDir:
 		backupsPath = filepath.Join(
 			filepath.Dir(absFilePath),
 			fmt.Sprintf("%s_%s", c.BackupsFolder, ts),
@@ -28,7 +29,7 @@ func (c BackupsConfig) PrepareBackupsDir(filename string, startTime time.Time) (
 			return "", err
 		}
 		parentMode = stat.Mode() & os.ModePerm
-	} else if c.BackupsLocation == BackupsLocAbsPath {
+	case BackupsLocAbsPath:
 		backupsPath = filepath.Join(
 			c.BackupsFolder,
 			fmt.Sprintf("%s %s", ts, filepath.Base(filepath.Dir(absFilePath))),

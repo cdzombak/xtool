@@ -140,11 +140,12 @@ func NeatImageProcess(args []string, files []string, appConfig AppConfig, verbos
 		fullArgs = append(fullArgs, args...)
 
 		inputExt := strings.ToLower(filepath.Ext(imgFilename))
-		if inputExt == ".jpg" || inputExt == ".jpeg" {
+		switch inputExt {
+		case ".jpg", ".jpeg":
 			fullArgs = append(fullArgs, "--output-format=JPG")
-		} else if inputExt == ".tif" || inputExt == ".tiff" {
+		case ".tif", ".tiff":
 			fullArgs = append(fullArgs, "--output-format=TIF")
-		} else if inputExt == ".png" {
+		case ".png":
 			fullArgs = append(fullArgs, "--output-format=PNG")
 		}
 

@@ -53,7 +53,7 @@ func (p *inspectCmd) Execute(ctx context.Context, f *flag.FlagSet, _ ...interfac
 		return subcommands.ExitFailure
 	}
 	//goland:noinspection GoUnhandledErrorResult
-	defer os.Remove(exiftoolConfigFilename)
+	defer func() { _ = os.Remove(exiftoolConfigFilename) }()
 
 	swapExiftoolArgs := []string{"-j", "-f", "-Model", "-XtoolOriginalCameraModel"}
 	locationExiftoolArgs := []string{"-j", "-gps*"}

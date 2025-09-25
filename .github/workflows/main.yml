@@ -20,7 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Derive version string
         id: bin_version
         run: echo "bin_version=$(./.version.sh)" >> "$GITHUB_OUTPUT"
@@ -76,11 +76,11 @@ jobs:
       pull-requests: write
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Generate build dependencies
         run: make deps
       - name: golangci-lint
-        uses: golangci/golangci-lint-action@v6.0.1
+        uses: golangci/golangci-lint-action@v8
         with:
           version: latest
       - name: ShellCheck
@@ -90,9 +90,9 @@ jobs:
       - name: Prettier
         run: prettier --check .
       - name: Actionlint
-        uses: raven-actions/actionlint@v2
+        uses: raven-actions/actionlint@v2.0.1
       - name: Setup shfmt
-        uses: mfinelli/setup-shfmt@v3.0.1
+        uses: mfinelli/setup-shfmt@v4
       - name: shfmt
         run: shfmt -d .
 
@@ -104,10 +104,10 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup Go
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@v6
         with:
           go-version-file: "go.mod"
       - name: Go version
@@ -137,7 +137,7 @@ jobs:
       contents: write
     steps:
       - name: Download binaries & packages
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: ${{ needs.meta.outputs.bin_name }} Binary Artifacts
           path: out
@@ -145,7 +145,7 @@ jobs:
         working-directory: out
         run: ls -R
       - name: Create GitHub release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           files: out/${{ needs.meta.outputs.bin_name }}-*
           prerelease: ${{ needs.meta.outputs.is_prerelease == 'true' }}
@@ -161,7 +161,7 @@ jobs:
       contents: write
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Update running major/minor version tags
         uses: sersoft-gmbh/running-release-tags-action@v3
         with:
@@ -176,7 +176,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Release to ${{ needs.meta.outputs.brewtap_owner }}/${{ needs.meta.outputs.brewtap_name }} tap
-        uses: Justintime50/homebrew-releaser@v1
+        uses: Justintime50/homebrew-releaser@v2
         with:
           homebrew_owner: ${{ needs.meta.outputs.brewtap_owner }}
           homebrew_tap: homebrew-${{ needs.meta.outputs.brewtap_name }}
@@ -200,7 +200,7 @@ jobs:
     needs: [meta, lint, binaries, tags, release, homebrew]
     steps:
       - name: Send success notification
-        uses: niniyas/ntfy-action@master
+        uses: niniyas/ntfy-action@V1.0.5
         if: ${{ !contains(needs.*.result, 'failure') && (needs.meta.outputs.is_release == 'true' || needs.meta.outputs.is_prerelease == 'true') }}
         with:
           url: "https://ntfy.cdzombak.net"
@@ -211,7 +211,7 @@ jobs:
           title: ${{ github.event.repository.name }} ${{ needs.meta.outputs.bin_version }} available
           details: ${{ github.event.repository.name }} version ${{ needs.meta.outputs.bin_version }} is now available.
       - name: Send failure notification
-        uses: niniyas/ntfy-action@master
+        uses: niniyas/ntfy-action@V1.0.5
         if: ${{ contains(needs.*.result, 'failure') }}
         with:
           url: "https://ntfy.cdzombak.net"
